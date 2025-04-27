@@ -1,0 +1,22 @@
+[build]
+target = "riscv32imac-unknown-none-elf"
+# Zba Zbb Zbs Zbkb Zcb Zcmp Zicsr
+rustflags = [
+    "-C", "target-feature=+zba,+zbb,+zbkb,+zbs",
+    "-C", "link-arg=-z noexecstack",
+    "-C", "link-arg=--gc-sections",
+    "-C", "link-arg=-nostdlib",
+    "-C", "link-arg=-T1-min-crate/rp2350.ld",
+    "-C", "link-args=-melf32lriscv -belf32-littleriscv"
+]
+
+[target.riscv32imac-unknown-none-elf]
+linker = "riscv64-unknown-elf-ld"
+
+[unstable]
+build-std = ["core", "compiler_builtins", "alloc"]
+build-std-features = ["compiler-builtins-mem"]
+
+[profile]
+dev.panic = "abort"
+release.panic = "abort"
