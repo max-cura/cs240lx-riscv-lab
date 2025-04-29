@@ -1,10 +1,10 @@
 //! ELF to UF2 converter for RPI PICO 2 / RISCV.
 
-use std::path::Path;
 use clap::Parser;
-use elf::abi::SHT_NOBITS;
 use elf::ElfBytes;
+use elf::abi::SHT_NOBITS;
 use eyre::Result;
+use std::path::Path;
 
 fn main() {
     let args = Args::parse();
@@ -13,9 +13,9 @@ fn main() {
         panic!("Input file does not exist.");
     }
     let out_path = Path::new(&args.output);
-    let input = std::fs::read(&in_path).expect("Failed to read input file.");
+    let input = std::fs::read(in_path).expect("Failed to read input file.");
     let output = encode_uf2(&input).expect("Failed to generate UF2.");
-    std::fs::write(&out_path, &output).expect("Failed to write output file.");
+    std::fs::write(out_path, &output).expect("Failed to write output file.");
 }
 
 /// Command-line arguments.
@@ -94,7 +94,7 @@ impl Uf2Block {
         block_count: u32,
         family_id: FamilyId,
         extensions: Option<&[u8]>,
-        data: &[u8]
+        data: &[u8],
     ) -> Self {
         let extensions = extensions.unwrap_or(&[]);
         assert!(
@@ -104,7 +104,9 @@ impl Uf2Block {
         let mut this = Self {
             magic0: Self::MAGIC0,
             magic1: Self::MAGIC1,
-            flags: flags.with_family_id_present(true).with_extension_tags_present(!extensions.is_empty()),
+            flags: flags
+                .with_family_id_present(true)
+                .with_extension_tags_present(!extensions.is_empty()),
             target_address,
             payload_size: data.len().try_into().unwrap(),
             block_no,
@@ -130,11 +132,10 @@ struct IBlock {
 }
 
 /// Convert an ELF file to a UF2 file targeted at rp2350-riscv.
-pub fn encode_uf2(
-    file: &[u8],
-) -> Result<Vec<u8>> {
+pub fn encode_uf2(file: &[u8]) -> Result<Vec<u8>> {
     // Parse ELF
-    let elf : ElfBytes<elf::endian::LittleEndian> = ElfBytes::minimal_parse(&file).expect("Failed to parse ELF file (expected: elf32lriscv).");
+    let elf: ElfBytes<elf::endian::LittleEndian> =
+        ElfBytes::minimal_parse(file).expect("Failed to parse ELF file (expected: elf32lriscv).");
     let Some(segment_table) = elf.segments() else {
         eyre::bail!("no ELF segment table");
     };
@@ -164,15 +165,19 @@ pub fn encode_uf2(
             elf::abi::PT_LOAD => {
                 // Don't waste valuable flash space on BSS
                 if (segment.p_flags & SHT_NOBITS) == SHT_NOBITS {
-                    continue
+                    continue;
                 }
-                let file_bytes = &file[segment.p_offset as usize..(segment.p_offset + segment.p_filesz) as usize];
+                let file_bytes = &file
+                    [segment.p_offset as usize..(segment.p_offset + segment.p_filesz) as usize];
                 // use VA for target address; we typically want to ignore PA
                 let target_address = u32::try_from(segment.p_vaddr)?;
                 for (j, chunk) in file_bytes.chunks(RP2350_UF2_PAYLOAD_SIZE).enumerate() {
                     let mut chunk = chunk.to_vec();
                     // if this is the last chunk, and it's not 256 bytes, pad it out
-                    chunk.extend(std::iter::repeat_n(0u8, RP2350_UF2_PAYLOAD_SIZE - chunk.len()));
+                    chunk.extend(std::iter::repeat_n(
+                        0u8,
+                        RP2350_UF2_PAYLOAD_SIZE - chunk.len(),
+                    ));
                     iblocks.push(IBlock {
                         flags: Uf2Flags::EMPTY,
                         target_address: target_address + (j * RP2350_UF2_PAYLOAD_SIZE) as u32,
@@ -191,7 +196,10 @@ pub fn encode_uf2(
     }
 
     // Count blocks
-    let total_block_count : u32 = iblocks.len().try_into().expect("Too many blocks: overflowed u32");
+    let total_block_count: u32 = iblocks
+        .len()
+        .try_into()
+        .expect("Too many blocks: overflowed u32");
 
     // Write blocks out
     for (i, iblock) in iblocks.into_iter().enumerate() {
@@ -202,7 +210,7 @@ pub fn encode_uf2(
             total_block_count,
             iblock.family_id,
             None,
-            &iblock.data
+            &iblock.data,
         )));
     }
 

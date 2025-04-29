@@ -2,3 +2,5 @@
 *.o
 *.uf2
 target
+.DS_Store
+.idea
