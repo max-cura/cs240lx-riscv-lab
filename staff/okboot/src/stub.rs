@@ -1,10 +1,10 @@
 unsafe extern "C" {
     static __data_start__: [u8; 0];
-    static __stack_top__: [u8; 0];
+    static __heap_end__: [u8; 0];
 }
 
 pub unsafe fn locate_end() -> *const [u8; 0] {
-    &raw const __stack_top__
+    &raw const __heap_end__
 }
 pub unsafe fn locate_start() -> *const [u8; 0] {
     &raw const __data_start__
@@ -229,8 +229,8 @@ pub mod flat_binary {
         unsafe {
             asm!(
                 r#"
-                    li s2, 0xd0000000
-                    li s3, 1 << 25
+                    // li s2, 0xd0000000
+                    // li s3, 1 << 25
                     // sw s3, 0x030(s2)
 
                     andi t0, a2, -0x4

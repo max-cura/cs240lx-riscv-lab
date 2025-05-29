@@ -14,7 +14,7 @@ const BOOT_ERROR: u32 = okboot_common::su_boot::Command::BootError as u32;
 
 pub fn perform_download<U: Uart>(uart: &U) {
     // okay, so we just received PUT_PROGRAM_INFO
-    let addr = uart1::uart1_read32_blocking(uart);
+    let mut addr = uart1::uart1_read32_blocking(uart);
     let len = uart1::uart1_read32_blocking(uart);
     let crc = uart1::uart1_read32_blocking(uart);
 
@@ -26,6 +26,13 @@ pub fn perform_download<U: Uart>(uart: &U) {
         uart,
         "[theseus-device]: received PUT_PROGRAM_INFO: addr={addr:#010x} len={len} crc32={crc:#010x}"
     );
+    if addr == 0x8000 {
+        legacy_print_string_blocking!(
+            uart,
+            "[theseus-device]: WARNING: addr=0x8000, assuming installer error; installing to 0x2000_0000 instead"
+        );
+        addr = 0x2000_0000;
+    }
 
     let self_end = unsafe { locate_end() }.addr() as u32;
 

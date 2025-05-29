@@ -5,6 +5,7 @@ __SRAM_BASE = 0x20000000;
 __SRAM_SIZE = 512K; /* technically, 520K */
 
 __STACK_SIZE = 32K;
+__HEAP_SIZE = 32K;
 
 MEMORY
 {
@@ -60,6 +61,7 @@ SECTIONS
         __stack_top__ = .;
 
         __heap_start__ = .;
-        __heap_end__ = __SRAM_BASE + __SRAM_SIZE;
+        . = . + __HEAP_SIZE;
+        __heap_end__ = .;
     } >RAM
 }
