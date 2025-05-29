@@ -1,0 +1,22 @@
+[package]
+name = "okboot-common"
+version = "0.1.0"
+edition = "2021"
+
+[features]
+alloc = ["miniz_oxide/alloc"]
+std = ["alloc", "miniz_oxide/std"]
+compress-simd = ["miniz_oxide/simd"]
+default = []
+
+[dev-dependencies]
+rand = "0.8.5"
+
+[dependencies]
+serde = { version = "1.0.217", default-features = false, features = ["derive"] }
+bytemuck = { version = "1.20.0", features = ["must_cast"] }
+
+miniz_oxide = { version = "0.8.2", default-features = false }
+crc32fast = { version = "1.4.2", default-features = false, features = ["nightly"] }
+
+thiserror = { version = "1.0", package = "thiserror-core", default-features = false }

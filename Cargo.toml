@@ -1,3 +1,0 @@
-[workspace]
-resolver = "2"
-members = ["engrave-uf2","1-min-crate"]

@@ -1,6 +1,8 @@
 *.elf
 *.o
-*.uf2
 target
 .DS_Store
 .idea
+pico-sdk
+picotool
+readuf2

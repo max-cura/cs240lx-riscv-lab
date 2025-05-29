@@ -1,0 +1,9 @@
+[workspace]
+resolver = "2"
+members = [
+    "engrave-uf2",
+    "okboot",
+    "quartz",
+    "okboot-common",
+    "okdude"
+]

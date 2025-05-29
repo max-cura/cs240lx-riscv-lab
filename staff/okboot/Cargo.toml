@@ -1,0 +1,27 @@
+[package]
+name = "okboot"
+version = "0.1.0"
+edition = "2024"
+
+[dependencies]
+crc32fast = { version = "1.4.0", default-features = false, features = ["nightly"] }
+thiserror = { version = "1.0", package = "thiserror-core", default-features = false }
+
+okboot-common = { path = "../okboot-common", default-features = false, features = [] }
+
+miniz_oxide = { version = "0.7.4", default-features = false, features = [] }
+
+postcard = { version = "1.1.1", default-features = false }
+serde = { version = "1.0.217", default-features = false }
+
+enum_dispatch = "0.3.13"
+
+quartz = { path = "../quartz", features = ["rp2350"] }
+#embedded-alloc = "0.6.0"
+linked_list_allocator = "0.10.5"
+critical-section = { version = "1.2.0", features = ["restore-state-bool"] }
+
+elf = { version = "0.7.4", default-features = false, features = ["nightly"] }
+lock_api = "0.4.12"
+
+rp235x-pac = { version = "0.1.0", features = ["critical-section"] }
